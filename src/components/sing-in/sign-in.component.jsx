@@ -2,7 +2,9 @@ import React from 'react'
 import './sign-in.styles.scss'
 import FormInput from '../form-input/form-imput.component'
 import CustomButton from '../custom-button/custom-button.component'
-import { auth, sigInWithGoogle } from '../../firebase/firebase.utils'
+
+import { googleSignInStart, emailSignInStart } from '../../redux/user/user.actions'
+import { connect } from 'react-redux'
 
 class SigIn extends React.Component {
     constructor(props) {
@@ -17,16 +19,9 @@ class SigIn extends React.Component {
 
     handleSubmit = async event => {
         event.preventDefault();
+        const { emailSignInStart } = this.props
         const { email, password } = this.state;
-
-        try{
-            await auth.signInWithEmailAndPassword(email, password);
-            this.setState({email:'', password:''})
-        } catch(error) {
-            console.log(error)
-        }
-
-        
+        emailSignInStart(email, password)
     }
  
 
@@ -36,6 +31,8 @@ class SigIn extends React.Component {
     }
 
     render() {
+        const { googleSignInStart } = this.props
+
         return (
             <div className='sign-in'>
                 <h2>I already have an account</h2>
@@ -60,7 +57,7 @@ class SigIn extends React.Component {
                 
                     <div className='buttons'>
                     <CustomButton type='submit' > SIGN IN </CustomButton>
-                    <CustomButton type="button"  onClick={ sigInWithGoogle } isGoogleSignIn> 
+                    <CustomButton type="button"  onClick={ googleSignInStart } isGoogleSignIn> 
                     {' '}
                     Sign in with google{' '}  
                     </CustomButton>
@@ -71,4 +68,9 @@ class SigIn extends React.Component {
     }
 }
 
-export default SigIn;
+const mapDispatchToProps = dispatch => ({
+    googleSignInStart: () => dispatch(googleSignInStart()),
+    emailSignInStart: (email, password) => dispatch(emailSignInStart({email, password}))
+})
+
+export default connect(null, mapDispatchToProps)(SigIn);
